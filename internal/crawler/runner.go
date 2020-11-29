@@ -23,9 +23,9 @@ func (r *Runner) Start() error {
 	var bodyLinks []string
 	var jln string
 
-	linkService := &service.Link{}
-	docService := &service.Doc{}
-	docLinkService := &service.DocLink{}
+	linkService := new(service.Link)
+	docService := new(service.Doc)
+	docLinkService := new(service.DocLink)
 	bloomSavePath := internal.GetConfig().BloomFilter.DataPath
 
 	// 初始化bloom
@@ -43,7 +43,7 @@ func (r *Runner) Start() error {
 
 	offset := int64(0)
 bf:
-	// todo 事务原子性问题
+	// todo 事务原子性问题, 并发提高处理速度
 	for {
 		logger.Sugar.Infof("crawler get link from %d", offset)
 		linkModel, err = linkService.GetOne(offset)

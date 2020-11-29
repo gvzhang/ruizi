@@ -40,16 +40,25 @@ func (di *docId) Get() (uint64, error) {
 	return di.doGet(fp)
 }
 
-func (di *docId) doGet(handle io.ReadWriter) (uint64, error) {
+func (di *docId) doGet(handle io.ReadWriteSeeker) (uint64, error) {
 	di.lock.Lock()
 	defer di.lock.Unlock()
 
 	var maxId uint64
-	err := util.ReadBinary(handle, 8, &maxId)
+
+	_, err := handle.Seek(0, os.SEEK_SET)
+	if err != nil {
+		return 0, err
+	}
+	err = util.ReadBinary(handle, 8, &maxId)
 	if err != nil && err != io.EOF {
 		return 0, err
 	}
 
+	_, err = handle.Seek(0, os.SEEK_SET)
+	if err != nil {
+		return 0, err
+	}
 	maxId += 1
 	err = util.WriteBinary(handle, maxId)
 	if err != nil {

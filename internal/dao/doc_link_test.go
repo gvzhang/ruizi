@@ -41,6 +41,8 @@ func TestDoGetOne(t *testing.T) {
 	binary.Write(buffer, binary.LittleEndian, url)
 	rs := bytes.NewReader(buffer.Bytes())
 
+	bytes.NewBuffer()
+
 	docLinkModel, err := DocLink.doGetOne(rs, docId)
 	if err != nil {
 		t.Fatal(err)

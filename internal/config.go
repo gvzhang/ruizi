@@ -27,6 +27,7 @@ type Config struct {
 	Doc
 	DocLink
 	DocId
+	WordLib
 }
 
 type Base struct {
@@ -51,6 +52,10 @@ type DocLink struct {
 }
 
 type DocId struct {
+	DataPath string
+}
+
+type WordLib struct {
 	DataPath string
 }
 
@@ -92,6 +97,10 @@ func InitConfig() {
 		DataPath: GetRaw("data_path_doc_id"),
 	}
 
+	wordLib := WordLib{
+		DataPath: GetRaw("data_path_word_lib"),
+	}
+
 	config = &Config{
 		base,
 		link,
@@ -99,6 +108,7 @@ func InitConfig() {
 		doc,
 		docLink,
 		docId,
+		wordLib,
 	}
 
 	logLevel, err := strconv.Atoi(GetRaw("log_level"))

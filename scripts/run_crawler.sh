@@ -1,7 +1,7 @@
 #! /bin/bash
 
 work_dir=$(cd "$(dirname "$0")"; cd ..; pwd)
-for pid in $(pgrep -f "ruizi"); do
+for pid in $(pgrep -f "ruizi-crawler"); do
   kill "$pid"
 done
 
