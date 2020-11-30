@@ -6,11 +6,11 @@ import (
 	"testing"
 )
 
-func TestDoGet(t *testing.T) {
+func TestdoIncr(t *testing.T) {
 	buf := util.NewSeekableBuffer()
 	var i uint64
 	for i = 1; i <= 100; i++ {
-		id, err := DocId.doGet(buf)
+		id, err := DocId.doIncr(buf)
 		if err != nil {
 			t.Error(err)
 		}
@@ -27,7 +27,7 @@ func TestDoGetConcurrent(t *testing.T) {
 	wg.Add(100)
 	for i = 1; i <= 100; i++ {
 		go func() {
-			_, err := DocId.doGet(buf)
+			_, err := DocId.doIncr(buf)
 			if err != nil {
 				t.Error(err)
 			}
@@ -35,7 +35,7 @@ func TestDoGetConcurrent(t *testing.T) {
 		}()
 	}
 	wg.Wait()
-	docId, err := DocId.doGet(buf)
+	docId, err := DocId.doIncr(buf)
 	if err != nil {
 		t.Error(err)
 	}

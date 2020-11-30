@@ -9,21 +9,36 @@ import (
 type Runner struct {
 }
 
-func (r *Runner) Start() {
+func NewRunner() *Runner {
+	r := new(Runner)
+	return r
+}
+
+func (r *Runner) Start() error {
 	offset := int64(0)
-	docModel, err := dao.Doc.GetOne(offset)
-	if err != nil {
-		panic(err)
-	}
+
 	mw, err := service.NewMatchWord()
 	if err != nil {
 		panic(err)
 	}
-	tw, err := mw.Search(docModel.Raw)
-	if err != nil {
-		panic(err)
+	
+	for {
+		docModel, err := dao.Doc.GetOne(offset)
+		if err != nil {
+			return err
+		}
+		if docModel == nil {
+			return nil
+		}
+		tw, err := mw.Search(docModel.Raw)
+		if err != nil {
+			return err
+		}
+		fmt.Println(docModel.Id, tw)
+		offset = docModel.NextOffset
 	}
-	fmt.Println(tw)
+
+	return nil
 }
 
 func (r *Runner) Stop() error {

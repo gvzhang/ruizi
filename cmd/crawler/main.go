@@ -21,22 +21,29 @@ func main() {
 	dao.InitDoc()
 	dao.InitDocLink()
 
-	runner := crawler.Runner{}
-	go func() {
+	finishCh := make(chan struct{}, 0)
+	runner := crawler.NewRunner()
+	go func(finishCh chan struct{}) {
 		defer util.RecoverPanic()
 		err := runner.Start()
-		logger.Sugar.Infof("crawler finish %w", err)
-	}()
+		if err != nil {
+			logger.Sugar.Error(err)
+		}
+		finishCh <- struct{}{}
+	}(finishCh)
 
 	c := make(chan os.Signal, 0)
 	signal.Notify(c, syscall.SIGTERM)
 
-	s := <-c
-	logger.Logger.Info("crawler stop start", zap.Any("signal", s))
-	err := runner.Stop()
-	if err != nil {
-		logger.Logger.Error("crawler stop error", zap.Error(err))
+	select {
+	case s := <-c:
+		logger.Logger.Info("crawler stop start", zap.Any("signal", s))
+		err := runner.Stop()
+		if err != nil {
+			logger.Logger.Error("crawler stop error", zap.Error(err))
+		}
+		logger.Logger.Info("crawler stop end")
+	case <-finishCh:
+		logger.Sugar.Info("crawler finish")
 	}
-	logger.Logger.Info("crawler stop end")
-
 }

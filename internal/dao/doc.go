@@ -41,7 +41,7 @@ func (d *doc) Add(dm *model.Doc) error {
 	}
 	defer fp.Close()
 
-	docId, err := DocId.Get()
+	docId, err := DocId.Incr()
 	if err != nil {
 		return err
 	}

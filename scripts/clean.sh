@@ -8,5 +8,4 @@ done
 
 rm -f $work_dir/data/*.bin
 
-sh "$work_dir/data/init_link.sh"
-
+sh "$work_dir/scripts/initial_link.sh"
