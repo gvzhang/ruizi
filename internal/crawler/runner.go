@@ -61,17 +61,17 @@ bf:
 			continue
 		}
 
-		url := linkModel.Url
+		lu := linkModel.Url
 
 		// 布隆过滤器过滤爬取过的url
-		logger.Sugar.Infof("%s crawler check bloom", url)
-		exists, err = bloom.Get(string(url))
+		logger.Sugar.Infof("%s crawler check bloom", lu)
+		exists, err = bloom.Get(string(lu))
 		if err != nil {
 			break bf
 		}
 		// 会有误差，但可接受
 		if exists == true {
-			logger.Sugar.Infof("bloom find url %s", url)
+			logger.Sugar.Infof("bloom find url %s", lu)
 			err = linkService.FinishCrawler(linkModel)
 			if err != nil {
 				break bf
@@ -80,10 +80,10 @@ bf:
 		}
 
 		// 开始爬取
-		logger.Sugar.Infof("%s crawler begin", url)
-		body, err = util.RetryGet(string(url))
+		logger.Sugar.Infof("%s crawler begin", lu)
+		body, err = util.RetryGet(string(lu))
 		if err != nil {
-			logger.Sugar.Infof("%s can not crawler %s", url, err.Error())
+			logger.Sugar.Infof("%s can not crawler %s", lu, err.Error())
 			err = linkService.FinishCrawler(linkModel)
 			if err != nil {
 				break bf
@@ -91,21 +91,21 @@ bf:
 		}
 
 		// 保存原始网页
-		logger.Sugar.Infof("%s crawler save doc", url)
+		logger.Sugar.Infof("%s crawler save doc", lu)
 		docId, err = docService.Add(body)
 		if err != nil {
 			break bf
 		}
 
 		// 保存网页id对应链接
-		logger.Sugar.Infof("%s crawler save dock_link", url)
-		err = docLinkService.Add(docId, url)
+		logger.Sugar.Infof("%s crawler save dock_link", lu)
+		err = docLinkService.Add(docId, lu)
 		if err != nil {
 			break bf
 		}
 
 		// 分析url
-		logger.Sugar.Infof("%s crawler html parse", url)
+		logger.Sugar.Infof("%s crawler html parse", lu)
 		htmlParse := util.NewHtmlParse(body)
 		bodyLinks, err = htmlParse.GetLinks()
 		if err != nil {
@@ -113,13 +113,13 @@ bf:
 		}
 		if len(bodyLinks) != 0 {
 			// 保存待爬库
-			logger.Sugar.Infof("%s crawler save links %d", url, len(bodyLinks))
+			logger.Sugar.Infof("%s crawler save links %d", lu, len(bodyLinks))
 			for _, ln := range bodyLinks {
-				jln, err = util.JoinLink(string(url), ln)
+				jln, err = util.JoinLink(string(lu), ln)
 				if err != nil {
 					break bf
 				}
-				cjln, err = checkJoinUrl(string(url), jln)
+				cjln, err = checkJoinUrl(string(lu), jln)
 				if err != nil {
 					break bf
 				}
@@ -134,25 +134,25 @@ bf:
 		}
 
 		// 爬虫完成，更新布隆过滤器
-		logger.Sugar.Infof("%s crawler update bloom", url)
-		err = bloom.Set(string(url))
+		logger.Sugar.Infof("%s crawler update bloom", lu)
+		err = bloom.Set(string(lu))
 		if err != nil {
 			break bf
 		}
 
 		// bloom持久化
-		logger.Sugar.Infof("%s crawler persistence bloom", url)
-		util.BloomPersistence(bloom.OutputDB(), bloomSavePath)
+		logger.Sugar.Infof("%s crawler persistence bloom", lu)
+		_ = util.BloomPersistence(bloom.OutputDB(), bloomSavePath)
 
 		// 更新待爬数据状态
-		logger.Sugar.Infof("%s crawler finish", url)
+		logger.Sugar.Infof("%s crawler finish", lu)
 		err = linkService.FinishCrawler(linkModel)
 		if err != nil {
 			break bf
 		}
 
 		sleepSec := rand.Intn(1000) + 500
-		logger.Sugar.Infof("%s crawler sleep %d", url, sleepSec)
+		logger.Sugar.Infof("%s crawler sleep %d", lu, sleepSec)
 		time.Sleep(time.Duration(sleepSec) * time.Millisecond)
 	}
 

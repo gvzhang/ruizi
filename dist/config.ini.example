@@ -1,0 +1,9 @@
+log_level="-1"
+log_target="console"
+
+data_path_link = ""
+data_path_bloom_filter = ""
+data_path_doc = ""
+data_path_doc_link = ""
+data_path_doc_id = ""
+data_path_word_lib = ""
