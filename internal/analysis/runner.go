@@ -1,9 +1,9 @@
 package analysis
 
 import (
-	"fmt"
 	"ruizi/internal/dao"
 	"ruizi/internal/service"
+	"ruizi/pkg/util"
 )
 
 type Runner struct {
@@ -21,7 +21,7 @@ func (r *Runner) Start() error {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	for {
 		docModel, err := dao.Doc.GetOne(offset)
 		if err != nil {
@@ -30,15 +30,14 @@ func (r *Runner) Start() error {
 		if docModel == nil {
 			return nil
 		}
+		// todo docModel.Raw need html filter
 		tw, err := mw.Search(docModel.Raw)
 		if err != nil {
 			return err
 		}
-		fmt.Println(docModel.Id, tw)
+		tw = util.Uniq(tw)
 		offset = docModel.NextOffset
 	}
-
-	return nil
 }
 
 func (r *Runner) Stop() error {

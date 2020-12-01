@@ -37,8 +37,8 @@ func (di *docId) Get() (uint64, error) {
 	}
 	defer fp.Close()
 
-	di.lock.Lock()
-	defer di.lock.Unlock()
+	di.lock.RLock()
+	defer di.lock.RUnlock()
 
 	var id uint64
 	_, err = fp.Seek(0, os.SEEK_SET)

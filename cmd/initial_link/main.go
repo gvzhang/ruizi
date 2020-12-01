@@ -21,5 +21,5 @@ func main() {
 			panic(err)
 		}
 	}
-	fmt.Println("bootstrap success")
+	fmt.Println("initial link success")
 }
