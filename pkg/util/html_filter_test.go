@@ -25,31 +25,59 @@ const HtmlBody string = `<html>
 </body>
 </html>`
 
+func getHtmlBody() []byte {
+	return []byte(HtmlBody)
+}
+
 func TestJsFilter(t *testing.T) {
-	HtmlBodyB := []byte(HtmlBody)
-	hf := NewHtmlFilter(HtmlBodyB)
+	body := getHtmlBody()
+	hf := NewHtmlFilter(body)
 	hf.Js()
+	isContainJs(hf, t)
+}
+
+func isContainJs(hf *htmlFilter, t *testing.T) {
 	if strings.Contains(string(hf.body), "scripts") {
 		t.Error("body contain js")
 	}
 }
 
 func TestCssFilter(t *testing.T) {
-	HtmlBodyB := []byte(HtmlBody)
-	hf := NewHtmlFilter(HtmlBodyB)
+	body := getHtmlBody()
+	hf := NewHtmlFilter(body)
 	hf.Js()
+	isContainCss(hf, t)
+}
+
+func isContainCss(hf *htmlFilter, t *testing.T) {
 	if strings.Contains(string(hf.body), "scripts") {
 		t.Error("body contain css")
 	}
 }
 
 func TestHtmlFilter(t *testing.T) {
-	HtmlBodyB := []byte(HtmlBody)
-	hf := NewHtmlFilter(HtmlBodyB)
+	body := getHtmlBody()
+	hf := NewHtmlFilter(body)
 	hf.Html()
-	t.Log(string(hf.body))
+	isContainHtml(hf, t)
+}
+
+func isContainHtml(hf *htmlFilter, t *testing.T) {
+	hfb := string(hf.body)
+	for _, v := range hf.htmlTags {
+		if strings.Contains(hfb, "<"+v+">") || strings.Contains(hfb, "<"+v+" ") || strings.Contains(hfb, "</"+v+">") {
+			t.Error("body contain html " + v)
+			t.Log(hfb)
+		}
+	}
 }
 
 func TestJsCssHtmlFilter(t *testing.T) {
-
+	body := getHtmlBody()
+	hf := NewHtmlFilter(body)
+	hf.Js().Css().Html()
+	isContainJs(hf, t)
+	isContainCss(hf, t)
+	isContainHtml(hf, t)
+	t.Log(strings.Trim(string(hf.body), "\r\n"))
 }

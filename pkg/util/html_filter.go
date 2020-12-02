@@ -52,7 +52,7 @@ func (hf *htmlFilter) filterTagWithContent(tag string) *htmlFilter {
 	hf.lock.Lock()
 	defer hf.lock.Unlock()
 
-	jtb, jte := []byte("<"+tag+">"), []byte("</"+tag+">")
+	jtb, jte := []byte("<"+tag+" >"), []byte("</"+tag+">")
 	jel, bl := len(jte), len(hf.body)
 	cb := hf.body
 
@@ -60,17 +60,19 @@ func (hf *htmlFilter) filterTagWithContent(tag string) *htmlFilter {
 	for ; j < bl; i, j = i+1, j+1 {
 		mb := hf.tagEndPos(jtb, cb, j)
 		if mb != 0 {
-			j = mb
-			for ; j < bl-1; j++ {
+			j = mb + 1
+			for ; j < bl; j++ {
 				if j+jel >= bl {
 					continue
 				}
 				if bytes.Equal(cb[j:j+jel], jte) {
-					// +1换行符
-					j = j + jel + 1
+					j = j + jel
 					break
 				}
 			}
+		}
+		if j >= bl {
+			break
 		}
 		cb[i] = cb[j]
 	}
@@ -86,30 +88,46 @@ func (hf *htmlFilter) Css() *htmlFilter {
 	return hf.filterTagWithContent(hf.cssTag)
 }
 
+type htm struct {
+	tag []byte
+	fa  bool
+}
+
 func (hf *htmlFilter) Html() *htmlFilter {
 	hf.lock.Lock()
 	defer hf.lock.Unlock()
 
 	cb := hf.body
-	bl := len(hf.body)
-	hTags := make([][]byte, len(hf.htmlTags)*2)
+	hTags := make([]htm, len(hf.htmlTags)*3)
 	var k int
 	for _, h := range hf.htmlTags {
-		hTags[k] = []byte("<" + h + ">")
-		hTags[k+1] = []byte("</" + h + ">")
-		k = k + 2
+		hTags[k] = htm{[]byte("<" + h + " >"), true}
+		hTags[k+1] = htm{[]byte("<" + h + ">"), false}
+		hTags[k+2] = htm{[]byte("</" + h + ">"), false}
+		k = k + 3
 	}
 	for _, t := range hTags {
 		i, j := 0, 0
-		for ; j < bl; i, j = i+1, j+1 {
-			mb := hf.tagEndPos(t, cb, j)
-			if mb != 0 {
-				j = mb
+		cbl, hl := len(cb), len(t.tag)
+		for ; j < cbl; i, j = i+1, j+1 {
+			if t.fa == true {
+				mb := hf.tagEndPos(t.tag, cb, j)
+				if mb != 0 {
+					j = mb + 1
+				}
+			} else {
+				if j+hl <= cbl && bytes.Equal(cb[j:j+hl], t.tag) {
+					j = j + hl
+				}
+			}
+			if j >= cbl {
+				break
 			}
 			cb[i] = cb[j]
 		}
 		cb = cb[0:i]
 	}
+
 	hf.body = cb
 	return hf
 }
