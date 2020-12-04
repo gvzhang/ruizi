@@ -28,6 +28,8 @@ type Config struct {
 	DocLink
 	DocId
 	WordLib
+	TermId
+	TmpIndex
 }
 
 type Base struct {
@@ -56,6 +58,14 @@ type DocId struct {
 }
 
 type WordLib struct {
+	DataPath string
+}
+
+type TermId struct {
+	DataPath string
+}
+
+type TmpIndex struct {
 	DataPath string
 }
 
@@ -101,6 +111,14 @@ func InitConfig() {
 		DataPath: GetRaw("data_path_word_lib"),
 	}
 
+	termId := TermId{
+		DataPath: GetRaw("data_path_term_id"),
+	}
+
+	tmpIndex := TmpIndex{
+		DataPath: GetRaw("data_path_tmp_index"),
+	}
+
 	config = &Config{
 		base,
 		link,
@@ -109,6 +127,8 @@ func InitConfig() {
 		docLink,
 		docId,
 		wordLib,
+		termId,
+		tmpIndex,
 	}
 
 	logLevel, err := strconv.Atoi(GetRaw("log_level"))

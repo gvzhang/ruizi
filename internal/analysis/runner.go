@@ -30,12 +30,19 @@ func (r *Runner) Start() error {
 		if docModel == nil {
 			return nil
 		}
-		// todo docModel.Raw need html filter
-		tw, err := mw.Search(docModel.Raw)
+
+		// 过滤JS、CSS、HTML标签（需优化性能）
+		hf := util.NewHtmlFilter(docModel.Raw)
+		hf.Css().Js().Html()
+		docRaw := hf.GetBody()
+
+		// 文本分词
+		tw, err := mw.Search(docRaw)
 		if err != nil {
 			return err
 		}
 		tw = util.Uniq(tw)
+
 		offset = docModel.NextOffset
 	}
 }

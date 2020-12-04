@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"ruizi/internal"
 	"ruizi/internal/analysis"
+	"ruizi/internal/dao"
 	"ruizi/pkg/logger"
 	"ruizi/pkg/util"
 	"syscall"
@@ -14,6 +15,8 @@ import (
 func main() {
 	internal.InitConfig()
 	logger.Init(internal.GetConfig().RootPath)
+	dao.InitTermId()
+	dao.InitTmpIndex()
 
 	finishCh := make(chan struct{}, 0)
 	runner := analysis.NewRunner()

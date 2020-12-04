@@ -20,6 +20,15 @@ const HtmlBody string = `<html>
 		alert(a);
 	});
 </script>
+<script>
+	var _hmt = _hmt || [];
+	(function() {
+		var hm = document.createElement("script");
+		hm.src = "https://hm.baidu.com/hm.js?082cf24f462676424893181d7123400e";
+		var s = document.getElementsByTagName("script")[0]; 
+		s.parentNode.insertBefore(hm, s);
+	})();
+</script>
 <h1>段落1</h1>
 <p id="article" style="font-size:red">正文...</p>
 </body>

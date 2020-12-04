@@ -52,17 +52,22 @@ func (hf *htmlFilter) filterTagWithContent(tag string) *htmlFilter {
 	hf.lock.Lock()
 	defer hf.lock.Unlock()
 
-	jtb, jte := []byte("<"+tag+" >"), []byte("</"+tag+">")
-	jel, bl := len(jte), len(hf.body)
 	cb := hf.body
+	jtb, jbt2, jte := []byte("<"+tag+" >"), []byte("<"+tag+">"), []byte("</"+tag+">")
+	jel, jbt2l, bl := len(jte), len(jbt2), len(cb)
 
 	i, j := 0, 0
 	for ; j < bl; i, j = i+1, j+1 {
 		mb := hf.tagEndPos(jtb, cb, j)
+		if mb == 0 && (j+jbt2l <= bl) {
+			if bytes.Equal(cb[j:j+jbt2l], jbt2) {
+				mb = j + jbt2l
+			}
+		}
 		if mb != 0 {
 			j = mb + 1
 			for ; j < bl; j++ {
-				if j+jel >= bl {
+				if j+jel > bl {
 					continue
 				}
 				if bytes.Equal(cb[j:j+jel], jte) {
@@ -130,4 +135,8 @@ func (hf *htmlFilter) Html() *htmlFilter {
 
 	hf.body = cb
 	return hf
+}
+
+func (hf *htmlFilter) GetBody() []byte {
+	return hf.body
 }

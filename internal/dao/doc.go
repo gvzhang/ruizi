@@ -55,7 +55,7 @@ func (d *doc) doAdd(handle io.Writer, dm *model.Doc) error {
 
 	rawSize := len(dm.Raw)
 	if int64(rawSize) > int64(internal.UINT32_MAX) {
-		return errors.New("raw len can not excedded uint32 max")
+		return errors.New("raw len cannot be greater than uint32 max")
 	}
 	dm.Size = uint32(rawSize)
 	rawSizeLen := 4
