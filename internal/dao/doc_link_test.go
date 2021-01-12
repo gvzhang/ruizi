@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestDoAdd(t *testing.T) {
+func TestDocLinkDoAdd(t *testing.T) {
 	buffer := new(bytes.Buffer)
 	docLinkModel := &model.DocLink{
 		DocId: 1,
@@ -32,7 +32,7 @@ func TestDoAdd(t *testing.T) {
 	}
 }
 
-func TestDoGetOne(t *testing.T) {
+func TestDocLinkDoGetOne(t *testing.T) {
 	docId := uint64(1)
 	url := []byte("http://www.test.com")
 	buffer := new(bytes.Buffer)

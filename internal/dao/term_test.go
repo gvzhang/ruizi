@@ -16,8 +16,9 @@ func TestTermDoAdd(t *testing.T) {
 	buffer := new(bytes.Buffer)
 	rawSize := uint16(len(txt))
 	termModel := &model.Term{
-		Id:  1,
-		Txt: txt,
+		Id:     1,
+		Txt:    txt,
+		Status: model.TermStatusEnable,
 	}
 	err := Term.doAdd(buffer, termModel)
 	if err != nil {
@@ -44,15 +45,15 @@ func TestTermDoAdd(t *testing.T) {
 func TestTermDoGetOne(t *testing.T) {
 	txt := []byte("苹果")
 	buffer := new(bytes.Buffer)
-	rawSize := uint16(len(txt))
+	rawSize := uint32(len(txt))
 	termModel := &model.Term{
 		Id:     1,
-		Status: model.TermStatusWait,
-		Txt:    []byte(txt),
+		Status: model.TermStatusEnable,
+		Txt:    txt,
 	}
 	termIdLen := uint32(8)
 	statusLen := uint32(1)
-	totalLen := int64(termIdLen + statusLen + uint32(rawSize))
+	totalLen := int64(termIdLen + statusLen + rawSize)
 
 	binary.Write(buffer, binary.LittleEndian, totalLen)
 	binary.Write(buffer, binary.LittleEndian, termModel.Id)
@@ -69,10 +70,10 @@ func TestTermDoGetOne(t *testing.T) {
 
 	expectModel := &model.Term{
 		Id:         1,
-		Status:     model.TermStatusWait,
-		Txt:        []byte(txt),
+		Status:     model.TermStatusEnable,
+		Txt:        txt,
 		Offset:     offset,
-		NextOffset: offset + int64(8+totalLen),
+		NextOffset: offset + 8 + totalLen,
 	}
 	t.Log("actually: " + termModel.String())
 	t.Log("  expect: " + expectModel.String())
@@ -91,14 +92,14 @@ func TestTermGetNext(t *testing.T) {
 
 	buffer := new(bytes.Buffer)
 	for idx, txt := range txts {
-		rawSize := uint16(len(txt))
+		rawSize := uint32(len(txt))
 		termModel := &model.Term{
 			Id:     uint64(idx + 1),
-			Status: model.TermStatusWait,
+			Status: model.TermStatusEnable,
 			Txt:    txt,
 		}
 
-		totalLen := int64(termIdLen + statusLen + uint32(rawSize))
+		totalLen := int64(termIdLen + statusLen + rawSize)
 		binary.Write(buffer, binary.LittleEndian, totalLen)
 		binary.Write(buffer, binary.LittleEndian, termModel.Id)
 		binary.Write(buffer, binary.LittleEndian, termModel.Status)
@@ -108,18 +109,18 @@ func TestTermGetNext(t *testing.T) {
 
 	offset := int64(0)
 	for idx, txt := range txts {
-		rawSize := uint16(len(txt))
+		rawSize := uint32(len(txt))
 		termModel, err := Term.doGetOne(rs, offset)
 		if err != nil {
 			t.Fatal(err)
 		}
-		totalLen := int64(termIdLen + statusLen + uint32(rawSize))
+		totalLen := int64(termIdLen + statusLen + rawSize)
 		expectModel := &model.Term{
 			Id:         uint64(idx + 1),
-			Status:     model.TermStatusWait,
-			Txt:        []byte(txt),
+			Status:     model.TermStatusEnable,
+			Txt:        txt,
 			Offset:     offset,
-			NextOffset: offset + int64(8+totalLen),
+			NextOffset: offset + 8 + totalLen,
 		}
 		t.Log("actually: " + termModel.String())
 		t.Log("  expect: " + expectModel.String())
@@ -135,8 +136,8 @@ func TestTermUpdateStatus(t *testing.T) {
 	buffer := new(bytes.Buffer)
 	addModel := &model.Term{
 		Id:     1,
-		Status: model.TermStatusWait,
-		Txt:    []byte(txt),
+		Status: model.TermStatusEnable,
+		Txt:    txt,
 	}
 	err := Term.doAdd(buffer, addModel)
 	if err != nil {
@@ -152,7 +153,7 @@ func TestTermUpdateStatus(t *testing.T) {
 
 	wr := &writerseeker.WriterSeeker{}
 	wr.Write(buffer.Bytes())
-	err = Term.doUpdateStatus(wr, docModel, model.TermStatusAnalysis)
+	err = Term.doUpdateStatus(wr, docModel, model.TermStatusDisable)
 	if err != nil {
 		t.Fatal(err)
 	}

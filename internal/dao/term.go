@@ -57,11 +57,11 @@ func (t *term) doAdd(handle io.Writer, tm *model.Term) error {
 	if txtLen > int(internal.UINT16_MAX) {
 		return errors.New("txt len can not excedded uint16 max")
 	}
-	termIdlen := 8
+	termIdLen := 8
 
 	// 内存一并写入实现原子操作
 	statusLen := 1
-	totalLen := int64(termIdlen + statusLen + txtLen)
+	totalLen := int64(termIdLen + statusLen + txtLen)
 
 	writeBuffer := new(bytes.Buffer)
 	binary.Write(writeBuffer, binary.LittleEndian, totalLen)
@@ -75,20 +75,20 @@ func (t *term) doAdd(handle io.Writer, tm *model.Term) error {
 	return nil
 }
 
-func (l *term) GetOne(beginOffset int64) (*model.Term, error) {
+func (t *term) GetOne(beginOffset int64) (*model.Term, error) {
 	fp, err := os.Open(internal.GetConfig().Term.DataPath)
 	if err != nil {
 		return nil, err
 	}
 	defer fp.Close()
-	return l.doGetOne(fp, beginOffset)
+	return t.doGetOne(fp, beginOffset)
 }
 
-func (l *term) doGetOne(handle io.ReadSeeker, beginOffset int64) (*model.Term, error) {
-	l.lock.RLock()
-	defer l.lock.RUnlock()
+func (t *term) doGetOne(handle io.ReadSeeker, beginOffset int64) (*model.Term, error) {
+	t.lock.RLock()
+	defer t.lock.RUnlock()
 
-	_, err := handle.Seek(beginOffset, os.SEEK_SET)
+	_, err := handle.Seek(beginOffset, io.SeekStart)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (l *term) doGetOne(handle io.ReadSeeker, beginOffset int64) (*model.Term, e
 		return nil, err
 	}
 
-	curOffset, err := handle.Seek(0, os.SEEK_CUR)
+	curOffset, err := handle.Seek(0, io.SeekCurrent)
 	if err != nil {
 		return nil, err
 	}
@@ -143,21 +143,21 @@ func (l *term) doGetOne(handle io.ReadSeeker, beginOffset int64) (*model.Term, e
 	}, nil
 }
 
-func (d *term) UpdateStatus(termModel *model.Term, status uint8) error {
+func (t *term) UpdateStatus(termModel *model.Term, status uint8) error {
 	dataPath := internal.GetConfig().Term.DataPath
 	fp, err := os.OpenFile(dataPath, os.O_WRONLY, 0)
 	if err != nil {
 		return err
 	}
 	defer fp.Close()
-	return d.doUpdateStatus(fp, termModel, status)
+	return t.doUpdateStatus(fp, termModel, status)
 }
 
-func (d *term) doUpdateStatus(handle io.WriteSeeker, termModel *model.Term, status uint8) error {
-	d.lock.Lock()
-	defer d.lock.Unlock()
+func (t *term) doUpdateStatus(handle io.WriteSeeker, termModel *model.Term, status uint8) error {
+	t.lock.Lock()
+	defer t.lock.Unlock()
 
-	_, err := handle.Seek(termModel.Offset+8+8, os.SEEK_SET)
+	_, err := handle.Seek(termModel.Offset+8+8, io.SeekStart)
 	if err != nil {
 		return err
 	}

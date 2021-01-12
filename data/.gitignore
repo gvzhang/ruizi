@@ -1,7 +1,3 @@
 !.gitignore
 !word_lib
-doc.bin
-doc_id.bin
-doc_link.bin
-links.bin
-bloom_filter.bin
+*

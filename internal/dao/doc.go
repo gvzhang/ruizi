@@ -91,7 +91,7 @@ func (d *doc) doGetOne(handle io.ReadSeeker, beginOffset int64) (*model.Doc, err
 	d.lock.RLock()
 	defer d.lock.RUnlock()
 
-	_, err := handle.Seek(beginOffset, os.SEEK_SET)
+	_, err := handle.Seek(beginOffset, io.SeekStart)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +138,7 @@ func (d *doc) doGetOne(handle io.ReadSeeker, beginOffset int64) (*model.Doc, err
 		return nil, err
 	}
 
-	curOffset, err := handle.Seek(0, os.SEEK_CUR)
+	curOffset, err := handle.Seek(0, io.SeekCurrent)
 	if err != nil {
 		return nil, err
 	}
@@ -167,7 +167,7 @@ func (d *doc) doUpdateStatus(handle io.WriteSeeker, docModel *model.Doc, status 
 	d.lock.Lock()
 	defer d.lock.Unlock()
 
-	_, err := handle.Seek(docModel.Offset+8+8, os.SEEK_SET)
+	_, err := handle.Seek(docModel.Offset+8+8, io.SeekStart)
 	if err != nil {
 		return err
 	}

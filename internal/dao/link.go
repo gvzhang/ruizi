@@ -78,7 +78,7 @@ func (l *link) doGetOne(handle io.ReadSeeker, beginOffset int64) (*model.Link, e
 	l.lock.RLock()
 	defer l.lock.RUnlock()
 
-	_, err := handle.Seek(beginOffset, os.SEEK_SET)
+	_, err := handle.Seek(beginOffset, io.SeekStart)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func (l *link) doGetOne(handle io.ReadSeeker, beginOffset int64) (*model.Link, e
 		return nil, err
 	}
 
-	curOffset, err := handle.Seek(0, os.SEEK_CUR)
+	curOffset, err := handle.Seek(0, io.SeekCurrent)
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +140,7 @@ func (l *link) doUpdateStatus(handle io.WriteSeeker, linkModel *model.Link, stat
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
-	_, err := handle.Seek(linkModel.Offset+2, os.SEEK_SET)
+	_, err := handle.Seek(linkModel.Offset+2, io.SeekStart)
 	if err != nil {
 		return err
 	}

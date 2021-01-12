@@ -17,9 +17,17 @@ func main() {
 	logger.Init(internal.GetConfig().RootPath)
 	dao.InitTermId()
 	dao.InitTmpIndex()
+	dao.InitTerm()
+	dao.InitIndex()
+	dao.InitTermOffset()
 
 	finishCh := make(chan struct{}, 0)
-	runner := analysis.NewRunner()
+	runner, err := analysis.NewRunner()
+	if err != nil {
+		logger.Logger.Error("analysis.NewRunner error", zap.Error(err))
+		return
+	}
+
 	go func(finishCh chan struct{}) {
 		defer util.RecoverPanic()
 		err := runner.Start()

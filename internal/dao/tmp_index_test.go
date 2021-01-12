@@ -61,8 +61,8 @@ func TestTmpIndexDoGetOne(t *testing.T) {
 
 func TestTmpIndexGetNext(t *testing.T) {
 	rows := [][]uint64{
-		[]uint64{101, 201},
-		[]uint64{203, 304},
+		{101, 201},
+		{203, 304},
 	}
 
 	buffer := new(bytes.Buffer)

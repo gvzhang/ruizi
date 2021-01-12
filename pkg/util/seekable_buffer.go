@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 )
 
 // SeekableBuffer is a simple memory structure that satisfies
@@ -21,7 +20,6 @@ func NewSeekableBuffer() *SeekableBuffer {
 	return &SeekableBuffer{
 		data: data,
 	}
-
 }
 
 // NewSeekableBufferWithBytes is a factory that returns a `*SeekableBuffer`.
@@ -32,7 +30,6 @@ func NewSeekableBufferWithBytes(originalData []byte) *SeekableBuffer {
 	return &SeekableBuffer{
 		data: data,
 	}
-
 }
 
 func len64(data []byte) int64 {
@@ -74,15 +71,12 @@ func (sb *SeekableBuffer) Write(p []byte) (n int, err error) {
 	if tailCount > 0 {
 		tailBytes = sb.data[len64(sb.data)-tailCount:]
 		sb.data = append(sb.data[:sb.position], p...)
-
 	} else {
 		sb.data = append(sb.data[:sb.position], p...)
-
 	}
 
 	if tailBytes != nil {
 		sb.data = append(sb.data, tailBytes...)
-
 	}
 
 	dataSize := len64(p)
@@ -102,7 +96,6 @@ func (sb *SeekableBuffer) Read(p []byte) (n int, err error) {
 
 	if sb.position >= len64(sb.data) {
 		return 0, io.EOF
-
 	}
 
 	n = copy(p, sb.data[sb.position:])
@@ -123,11 +116,9 @@ func (sb *SeekableBuffer) Truncate(size int64) (err error) {
 	sizeInt := int(size)
 	if sizeInt < len(sb.data)-1 {
 		sb.data = sb.data[:sizeInt]
-
 	} else {
 		new := make([]byte, sizeInt-len(sb.data))
 		sb.data = append(sb.data, new...)
-
 	}
 
 	return nil
@@ -142,22 +133,18 @@ func (sb *SeekableBuffer) Seek(offset int64, whence int) (n int64, err error) {
 		}
 	}()
 
-	if whence == os.SEEK_SET {
+	if whence == io.SeekStart {
 		sb.position = offset
-
-	} else if whence == os.SEEK_END {
+	} else if whence == io.SeekEnd {
 		sb.position = len64(sb.data) + offset
-
-	} else if whence == os.SEEK_CUR {
+	} else if whence == io.SeekCurrent {
 		sb.position += offset
-
 	} else {
 		return 0, errors.New(fmt.Sprintf("seek whence is not valid: (%d)", whence))
 	}
 
 	if sb.position < 0 {
 		sb.position = 0
-
 	}
 
 	return sb.position, nil

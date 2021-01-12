@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestdoTermIdIncr(t *testing.T) {
+func TestDoTermIdIncr(t *testing.T) {
 	buf := util.NewSeekableBuffer()
 	var i uint64
 	for i = 1; i <= 100; i++ {

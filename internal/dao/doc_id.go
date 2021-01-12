@@ -41,7 +41,7 @@ func (di *docId) Get() (uint64, error) {
 	defer di.lock.RUnlock()
 
 	var id uint64
-	_, err = fp.Seek(0, os.SEEK_SET)
+	_, err = fp.Seek(0, io.SeekStart)
 	if err != nil {
 		return 0, err
 	}
@@ -69,7 +69,7 @@ func (di *docId) doIncr(handle io.ReadWriteSeeker) (uint64, error) {
 
 	var maxId uint64
 
-	_, err := handle.Seek(0, os.SEEK_SET)
+	_, err := handle.Seek(0, io.SeekStart)
 	if err != nil {
 		return 0, err
 	}
@@ -78,7 +78,7 @@ func (di *docId) doIncr(handle io.ReadWriteSeeker) (uint64, error) {
 		return 0, err
 	}
 
-	_, err = handle.Seek(0, os.SEEK_SET)
+	_, err = handle.Seek(0, io.SeekStart)
 	if err != nil {
 		return 0, err
 	}

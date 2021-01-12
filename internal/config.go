@@ -31,6 +31,8 @@ type Config struct {
 	TermId
 	Term
 	TmpIndex
+	Index
+	TermOffset
 }
 
 type Base struct {
@@ -71,6 +73,14 @@ type TermId struct {
 }
 
 type TmpIndex struct {
+	DataPath string
+}
+
+type Index struct {
+	DataPath string
+}
+
+type TermOffset struct {
 	DataPath string
 }
 
@@ -128,6 +138,14 @@ func InitConfig() {
 		DataPath: GetRaw("data_path_tmp_index"),
 	}
 
+	index := Index{
+		DataPath: GetRaw("data_path_index"),
+	}
+
+	termOffset := TermOffset{
+		DataPath: GetRaw("data_path_term_offset"),
+	}
+
 	config = &Config{
 		base,
 		link,
@@ -139,6 +157,8 @@ func InitConfig() {
 		termId,
 		term,
 		tmpIndex,
+		index,
+		termOffset,
 	}
 
 	logLevel, err := strconv.Atoi(GetRaw("log_level"))

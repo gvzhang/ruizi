@@ -82,7 +82,7 @@ func (dl *docLink) doGetOne(handle io.ReadSeeker, docId uint64) (*model.DocLink,
 	docIdLen := 8
 	offset := int64(0)
 	for {
-		_, err := handle.Seek(offset, os.SEEK_SET)
+		_, err := handle.Seek(offset, io.SeekStart)
 		if err != nil {
 			return nil, err
 		}
@@ -117,7 +117,7 @@ func (dl *docLink) doGetOne(handle io.ReadSeeker, docId uint64) (*model.DocLink,
 			return nil, err
 		}
 
-		offset, err = handle.Seek(0, os.SEEK_CUR)
+		offset, err = handle.Seek(0, io.SeekCurrent)
 		if err != nil {
 			return nil, err
 		}

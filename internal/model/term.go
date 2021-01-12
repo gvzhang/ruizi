@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-const TermStatusWait = 1
-const TermStatusAnalysis = 2
+const TermStatusEnable = 1
+const TermStatusDisable = 2
 
 type Term struct {
 	Id         uint64

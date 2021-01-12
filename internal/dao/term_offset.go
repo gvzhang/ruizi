@@ -11,20 +11,20 @@ import (
 	"sync"
 )
 
-type tmpIndex struct {
+type termOffset struct {
 	lock *sync.RWMutex
 }
 
-var TmpIndex *tmpIndex
+var TermOffset *termOffset
 
 func init() {
-	TmpIndex = &tmpIndex{
+	TermOffset = &termOffset{
 		lock: &sync.RWMutex{},
 	}
 }
 
-func InitTmpIndex() {
-	dataPath := internal.GetConfig().TmpIndex.DataPath
+func InitTermOffset() {
+	dataPath := internal.GetConfig().TermOffset.DataPath
 	fp, err := os.OpenFile(dataPath, os.O_CREATE, 0666)
 	if err != nil {
 		panic(err)
@@ -32,8 +32,8 @@ func InitTmpIndex() {
 	defer fp.Close()
 }
 
-func (dl *tmpIndex) Add(tim *model.TmpIndex) error {
-	dataPath := internal.GetConfig().TmpIndex.DataPath
+func (dl *termOffset) Add(tim *model.TermOffset) error {
+	dataPath := internal.GetConfig().TermOffset.DataPath
 	fp, err := os.OpenFile(dataPath, os.O_APPEND|os.O_WRONLY, 0)
 	if err != nil {
 		return err
@@ -42,14 +42,14 @@ func (dl *tmpIndex) Add(tim *model.TmpIndex) error {
 	return dl.doAdd(fp, tim)
 }
 
-func (dl *tmpIndex) doAdd(handle io.Writer, tim *model.TmpIndex) error {
+func (dl *termOffset) doAdd(handle io.Writer, tim *model.TermOffset) error {
 	dl.lock.Lock()
 	defer dl.lock.Unlock()
 
 	// 内存一并写入实现原子操作
 	writeBuffer := new(bytes.Buffer)
 	binary.Write(writeBuffer, binary.LittleEndian, tim.TermId)
-	binary.Write(writeBuffer, binary.LittleEndian, tim.DocId)
+	binary.Write(writeBuffer, binary.LittleEndian, tim.Offset)
 	err := util.WriteBinary(handle, writeBuffer.Bytes())
 	if err != nil {
 		return err
@@ -57,8 +57,8 @@ func (dl *tmpIndex) doAdd(handle io.Writer, tim *model.TmpIndex) error {
 	return nil
 }
 
-func (dl *tmpIndex) GetOne(beginOffset int64) (*model.TmpIndex, error) {
-	fp, err := os.Open(internal.GetConfig().TmpIndex.DataPath)
+func (dl *termOffset) GetOne(beginOffset int64) (*model.TermOffset, error) {
+	fp, err := os.Open(internal.GetConfig().TermOffset.DataPath)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (dl *tmpIndex) GetOne(beginOffset int64) (*model.TmpIndex, error) {
 	return dl.doGetOne(fp, beginOffset)
 }
 
-func (dl *tmpIndex) doGetOne(handle io.ReadSeeker, beginOffset int64) (*model.TmpIndex, error) {
+func (dl *termOffset) doGetOne(handle io.ReadSeeker, beginOffset int64) (*model.TermOffset, error) {
 	dl.lock.RLock()
 	defer dl.lock.RUnlock()
 
@@ -91,8 +91,8 @@ func (dl *tmpIndex) doGetOne(handle io.ReadSeeker, beginOffset int64) (*model.Tm
 		return nil, err
 	}
 
-	var docId uint64
-	err = binary.Read(bytes.NewBuffer(dataByte[8:16]), binary.LittleEndian, &docId)
+	var offset int64
+	err = binary.Read(bytes.NewBuffer(dataByte[8:16]), binary.LittleEndian, &offset)
 	if err != nil {
 		return nil, err
 	}
@@ -102,9 +102,9 @@ func (dl *tmpIndex) doGetOne(handle io.ReadSeeker, beginOffset int64) (*model.Tm
 		return nil, err
 	}
 
-	return &model.TmpIndex{
+	return &model.TermOffset{
 		TermId:     termId,
-		DocId:      docId,
+		Offset:      offset,
 		NextOffset: curOffset,
 	}, nil
 }

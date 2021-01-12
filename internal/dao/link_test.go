@@ -11,7 +11,7 @@ import (
 	"github.com/orcaman/writerseeker"
 )
 
-func TestDoAdd(t *testing.T) {
+func TestLinkDoAdd(t *testing.T) {
 	buffer := new(bytes.Buffer)
 	linkModel := &model.Link{
 		Url:    []byte("http://www.test.com"),
@@ -34,7 +34,7 @@ func TestDoAdd(t *testing.T) {
 	}
 }
 
-func TestDoGetOne(t *testing.T) {
+func TestLinkDoGetOne(t *testing.T) {
 	url := []byte("http://www.test.com")
 	buffer := new(bytes.Buffer)
 	binary.Write(buffer, binary.LittleEndian, uint16(len(url)+1))
@@ -61,7 +61,7 @@ func TestDoGetOne(t *testing.T) {
 	}
 }
 
-func TestGetNext(t *testing.T) {
+func TestLinkGetNext(t *testing.T) {
 	urls := [][]byte{
 		[]byte("http://www.test.com"),
 		[]byte("http://www.ruizi.com"),
@@ -97,7 +97,7 @@ func TestGetNext(t *testing.T) {
 	}
 }
 
-func TestUpdateStatus(t *testing.T) {
+func TestLinkUpdateStatus(t *testing.T) {
 	buffer := new(bytes.Buffer)
 	addModel := &model.Link{
 		Status: model.LinkStatusWait,
