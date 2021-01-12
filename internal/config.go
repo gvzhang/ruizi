@@ -29,6 +29,7 @@ type Config struct {
 	DocId
 	WordLib
 	TermId
+	Term
 	TmpIndex
 }
 
@@ -58,6 +59,10 @@ type DocId struct {
 }
 
 type WordLib struct {
+	DataPath string
+}
+
+type Term struct {
 	DataPath string
 }
 
@@ -115,6 +120,10 @@ func InitConfig() {
 		DataPath: GetRaw("data_path_term_id"),
 	}
 
+	term := Term{
+		DataPath: GetRaw("data_path_term"),
+	}
+
 	tmpIndex := TmpIndex{
 		DataPath: GetRaw("data_path_tmp_index"),
 	}
@@ -128,6 +137,7 @@ func InitConfig() {
 		docId,
 		wordLib,
 		termId,
+		term,
 		tmpIndex,
 	}
 
