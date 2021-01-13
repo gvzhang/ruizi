@@ -33,6 +33,7 @@ type Config struct {
 	TmpIndex
 	Index
 	TermOffset
+	Search
 }
 
 type Base struct {
@@ -84,6 +85,10 @@ type TermOffset struct {
 	DataPath string
 }
 
+type Search struct {
+	HttpListenAddr string
+}
+
 func InitConfig() {
 	env := os.Getenv("RUIZI_ENV")
 	rootPath, err := filepath.Abs(filepath.Dir(os.Args[0]))
@@ -105,45 +110,38 @@ func InitConfig() {
 	link := Link{
 		DataPath: GetRaw("data_path_link"),
 	}
-
 	bloomFilter := BloomFilter{
 		DataPath: GetRaw("data_path_bloom_filter"),
 	}
-
 	doc := Doc{
 		DataPath: GetRaw("data_path_doc"),
 	}
-
 	docLink := DocLink{
 		DataPath: GetRaw("data_path_doc_link"),
 	}
-
 	docId := DocId{
 		DataPath: GetRaw("data_path_doc_id"),
 	}
-
 	wordLib := WordLib{
 		DataPath: GetRaw("data_path_word_lib"),
 	}
-
 	termId := TermId{
 		DataPath: GetRaw("data_path_term_id"),
 	}
-
 	term := Term{
 		DataPath: GetRaw("data_path_term"),
 	}
-
 	tmpIndex := TmpIndex{
 		DataPath: GetRaw("data_path_tmp_index"),
 	}
-
 	index := Index{
 		DataPath: GetRaw("data_path_index"),
 	}
-
 	termOffset := TermOffset{
 		DataPath: GetRaw("data_path_term_offset"),
+	}
+	search := Search{
+		HttpListenAddr: GetRaw("search_http_listen_addr"),
 	}
 
 	config = &Config{
@@ -159,6 +157,7 @@ func InitConfig() {
 		tmpIndex,
 		index,
 		termOffset,
+		search,
 	}
 
 	logLevel, err := strconv.Atoi(GetRaw("log_level"))
