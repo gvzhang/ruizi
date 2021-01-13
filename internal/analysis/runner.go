@@ -27,18 +27,16 @@ func NewRunner() (*Runner, error) {
 
 func (r *Runner) Start() error {
 	var err error
-	//err = r.MatchWords()
-	//if err != nil {
-	//	return err
-	//}
+	err = r.MatchWords()
+	if err != nil {
+		return err
+	}
 
 	err = r.MakeIndexBin()
 	if err != nil {
 		return err
 	}
 
-	// todo 记录单词编号在索引文件中的偏移位置的文件（term_offset.bin）
-	// 这个文件的作用是，帮助我们快速地查找某个单词编号在倒排索引中存储的位置，进而快速地从倒排索引中读取单词编号对应的网页编号列表。
 
 	// 查询
 	// 当用户在搜索框中，输入某个查询文本的时候，我们先对用户输入的文本进行分词处理。假设分词之后，我们得到 k 个单词。
@@ -119,6 +117,9 @@ func (r *Runner) MakeIndexBin() error {
 		if err != nil {
 			return err
 		}
+
+		// 记录单词编号在索引文件中的偏移位置的文件（term_offset.bin）
+		// 这个文件的作用是，帮助我们快速地查找某个单词编号在倒排索引中存储的位置，进而快速地从倒排索引中读取单词编号对应的网页编号列表。
 		err = r.termOffsetService.Add(termId, offset)
 		if err != nil {
 			return err
