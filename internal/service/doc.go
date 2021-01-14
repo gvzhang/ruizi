@@ -24,6 +24,23 @@ func (d *Doc) GetOne(beginOffset int64) (*model.Doc, error) {
 	return dao.Doc.GetOne(beginOffset)
 }
 
+func (d *Doc) GetById(docId uint64) (*model.Doc, error) {
+	offset := int64(0)
+	for {
+		docModel, err := dao.Doc.GetOne(offset)
+		if err != nil {
+			return nil, err
+		}
+		if docModel == nil {
+			return nil, nil
+		}
+		if docModel.Id == docId {
+			return docModel, nil
+		}
+		offset = docModel.NextOffset
+	}
+}
+
 func (d *Doc) FinishAnalysis(docModel *model.Doc) error {
 	err := dao.Doc.UpdateStatus(docModel, model.DocStatusAnalysis)
 	if err != nil {
