@@ -60,11 +60,11 @@ func (t *index) doAdd(handle io.WriteSeeker, tm *model.Index) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	curOffset, err := handle.Seek(0, io.SeekCurrent)
+	endOffset, err := handle.Seek(0, io.SeekCurrent)
 	if err != nil {
 		return 0, err
 	}
-	return curOffset, nil
+	return endOffset - 8 - totalLen, nil
 }
 
 func (t *index) GetOne(beginOffset int64) (*model.Index, error) {

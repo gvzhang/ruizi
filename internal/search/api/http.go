@@ -2,12 +2,14 @@ package api
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 	"net/http"
 	"ruizi/internal"
 	"ruizi/internal/service"
+	"ruizi/pkg/logger"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 )
 
 type SearchHttpServer struct {
@@ -21,6 +23,8 @@ func (shs *SearchHttpServer) InitRouter() error {
 	shs.Router.LoadHTMLGlob(internal.GetConfig().Base.RootPath + "/templates/*")
 	shs.Router.Any("/index.html", shs.index)
 	shs.Router.GET("/page/raw", shs.rawPage)
+	shs.Router.GET("/search/words", shs.searchWord)
+	shs.Router.GET("/search/index", shs.searchIndex)
 	return nil
 }
 
@@ -63,6 +67,7 @@ func doSearch(searchWord string) ([]doc, error) {
 	if term == nil {
 		return docs, nil
 	}
+	logger.Sugar.Infof("doSearch1 TermId %d", term.Id)
 
 	termOffsetService := new(service.TermOffset)
 	termOffset, err := termOffsetService.GetByTermId(term.Id)
@@ -72,12 +77,14 @@ func doSearch(searchWord string) ([]doc, error) {
 	if termOffset == nil {
 		return docs, nil
 	}
+	logger.Sugar.Infof("doSearch2 TermOffset %d", termOffset.Offset)
 
 	indexService := new(service.Index)
 	index, err := indexService.GetOne(termOffset.Offset)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("find index error by %d", termOffset.Offset))
 	}
+	logger.Sugar.Infof("doSearch3 Index %+v", index)
 
 	docLinkModel := new(service.DocLink)
 	for _, v := range index.DocIdList {
@@ -118,4 +125,44 @@ func (shs *SearchHttpServer) rawPage(c *gin.Context) {
 	}
 
 	c.HTML(http.StatusOK, "raw.tmpl", ginH)
+}
+
+type term struct {
+	Id  uint64
+	Txt string
+}
+
+func (shs *SearchHttpServer) searchWord(c *gin.Context) {
+	termService := new(service.Term)
+	terms, err := termService.GetAll()
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
+	data := make([]term, 0)
+	for _, tm := range terms {
+		data = append(data, term{
+			Id:  tm.Id,
+			Txt: string(tm.Txt),
+		})
+	}
+	c.HTML(http.StatusOK, "debug.tmpl", gin.H{
+		"Data": data,
+	})
+}
+
+func (shs *SearchHttpServer) searchIndex(c *gin.Context) {
+	tid, _ := c.GetQuery("id")
+	termId, err := strconv.Atoi(tid)
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
+	indexService := new(service.Index)
+	index, err := indexService.GetByTermId(uint64(termId))
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
+	c.JSON(http.StatusOK, index.DocIdList)
 }
