@@ -146,13 +146,13 @@ func (r *Runner) Start() error {
 			return le
 		}
 
-		sleepSec := rand.Intn(1000) + 500
-		logger.Sugar.Infof("%s crawler sleep %d", lu, sleepSec)
-		time.Sleep(time.Duration(sleepSec) * time.Millisecond)
+		wait := rand.Intn(1000) + 500
+		logger.Sugar.Infof("%s crawler sleep %d", lu, wait)
+		time.Sleep(time.Duration(wait) * time.Millisecond)
 	}
 }
 
-// 分析url更新待爬库
+// 分析url更新待爬库，广度优先爬取
 func (r *Runner) processUrl(lu string, body []byte) error {
 	logger.Sugar.Infof("%s crawler html parse", lu)
 	htmlParse := util.NewHtmlParse(body)

@@ -40,6 +40,7 @@ func (ti *TmpIndex) GetAll(offset int64) ([]*model.TmpIndex, error) {
 	return tmpIndexList, nil
 }
 
+// todo tmpIndex.bin文件可能很大，做拆分排序，再聚合。
 func (ti *TmpIndex) Sort(arr []*model.TmpIndex) []*model.TmpIndex {
 	if len(arr) < 2 {
 		return arr

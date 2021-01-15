@@ -21,6 +21,7 @@ func main() {
 	dao.InitDoc()
 	dao.InitDocLink()
 
+    // todo 多服务管理优化
 	finishCh := make(chan struct{}, 0)
 	runner := crawler.NewRunner()
 	go func(finishCh chan struct{}) {
