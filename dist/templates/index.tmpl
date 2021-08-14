@@ -1,0 +1,15 @@
+<html>
+	<form method="post">
+      <label for="search-input">{{.title}}:</label><br>
+      <input type="text" id="search-input" name="wd" value="{{.wd}}" /><br>
+      <button type="submit">搜索</button>
+    </form>
+    <ul>
+        {{range .Data}}
+            <li>
+                <a target="_blank" href="{{.Url}}">{{.DocId}}</a>
+                <a target="_blank" href="/page/raw?id={{.DocId}}">快照</a>
+            </li>
+        {{end}}
+    </ul>
+</html>
